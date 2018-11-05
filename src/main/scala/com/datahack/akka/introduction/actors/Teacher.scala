@@ -13,7 +13,7 @@ class Teacher extends Actor with ActorLogging {
 
   log.debug(s"${self.path} actor created") // self es referencia al propio actor, propio de AKKA
 
-  val advices: Map[String, String] = Map[String, String](
+  var advices: Map[String, String] = Map[String, String](
     "History" -> "Moderation is for cowards",
     "Maths" -> "Anything worth doing is worth overdoing",
     "Geography" -> "Anything worth doing is worth overdoing",

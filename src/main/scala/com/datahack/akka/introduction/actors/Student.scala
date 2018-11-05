@@ -14,7 +14,7 @@ class Student(teacher: ActorRef) extends Actor with ActorLogging {
   log.debug(s"${self.path} actor created") // self es referencia al propio actor, propio de AKKA
 
   // Generate random topics
-  val genTopics: Gen[String] = Gen.oneOf("History", "Maths", "Geography", "Physics", "Literature", "Love")
+  val genTopics: Gen[String] = Gen.oneOf("History", "Maths", "Geography", "Physics", "Literature", "Biology")
 
   override def receive: Receive = {
     case PerformAnAdviceRequest => {
