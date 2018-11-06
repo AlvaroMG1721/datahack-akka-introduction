@@ -22,13 +22,41 @@ object UserService {
 
 class UserService(userDao: UserDao) {
 
-  def users()(implicit executionContext: ExecutionContext): Future[UserServiceResponse] = ???
+  def users()(implicit executionContext: ExecutionContext): Future[UserServiceResponse] = {
+    userDao.getAll.map(AllUsers)
+  }
 
-  def searchUser(id: Long)(implicit executionContext: ExecutionContext): Future[UserServiceResponse] = ???
+  def searchUser(id: Long)(implicit executionContext: ExecutionContext): Future[UserServiceResponse] = {
+    userDao.getById(id).map(_.map(FoundUser).getOrElse(UserNotFound))
+  }
 
-  def insertUser(user: User)(implicit executionContext: ExecutionContext): Future[UserServiceResponse] =  ???
+  def insertUser(user: User)(implicit executionContext: ExecutionContext): Future[UserServiceResponse] = {
+    for {
+      id <- userDao.insert(user)
+      user <- userDao.getById(id)
+    } yield StoredUser(user)
+  }
 
-  def updateUser(user: User)(implicit executionContext: ExecutionContext): Future[UserServiceResponse] =  ???
+  def updateUser(user: User)(implicit executionContext: ExecutionContext): Future[UserServiceResponse] = {
+    (for {
+      userFound <- userDao.getById(user.id.get)
+      if userFound.isDefined
+      _ <- userDao.update(user)
+      updatedUser <- userDao.getById(user.id.get)
+    } yield
+      updatedUser.map(UpdatedUser).get) recover {
+      case _: NoSuchElementException => UserNotFound
+      case e: Exception => throw e
+    }
+  }
 
-  def deleteUser(id: Long)(implicit executionContext: ExecutionContext): Future[UserServiceResponse] =  ???
+  def deleteUser(id: Long)(implicit executionContext: ExecutionContext): Future[UserServiceResponse] =  {
+    (for {
+      userFound <- userDao.getById(id)
+      if userFound.isDefined
+      _ <- userDao.delete(id)
+    } yield UserDeleted) recover {
+      case _: NoSuchElementException => UserNotFound
+    }
+  }
 }

@@ -21,7 +21,7 @@ class UserDao {
   def update(user: User): Future[Int] = {
     db.run(users.filter(_.id === user.id).update(user))
   }
-
+  
   def delete(id: Long): Future[Int] = db.run(users.filter(_.id === id).delete)
 
 }
